@@ -11,17 +11,42 @@ services:
     environment:
       MONGO_INITDB_DATABASE: test
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
   user_service:
     build: .
     container_name: user_service
     ports:
       - '8000:8000'
     environment:
+      - MONGO_URL=mongodb://mongo:27017/test
       - MONGODB_URI=mongodb://mongo:27017/test
       - JWT_SECRET=bbe916711a93cffb10039a353514ac859a9a364739322477acfd5d7c470ee6d1593cee37151b54ae906f9120d22d94a1f6085812a25044d58f9b353a5fde1383d9829d11008b7a3849a89193d9bc7113a82635818e2d553168bd6ba8346753690a722612677d08877e82ecd9b3415cb6adac3299aa61ad8b1b4881e965c0b9da4d2ecdfc84df775febeaa3d195281d9efd52e657450a377871d2bff2e1ea687da8cc1366aa083259b138e25c936dd0b38791b21a416bf42cc5c4a07d86736176634fe2b26a77273681e1982c902a7cee6b08e3d753ce47f5f62b099252c134107b45e880f3e28d7af6889f359d7f352f358304ef6955413a55b624417799f6d8
       - PORT=8000
+      - KAFKA_BROKERS=kafka:29092
     depends_on:
       - mongo
+      - kafka
     # If you use a .env file, uncomment the next line:
     # env_file: .env
 

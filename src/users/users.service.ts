@@ -6,10 +6,14 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/users.schema';
 import { Model } from 'mongoose';
+import { KafkaService } from 'src/kafka/kafka.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly kafkaService: KafkaService,
+  ) {}
 
   async findOne(email: string): Promise<User | undefined> {
     const user = await this.userModel.findOne({ email: email });
@@ -52,6 +56,11 @@ export class UsersService {
         { new: true, session },
       );
       await session.commitTransaction();
+      await this.kafkaService.onUserFollowed({
+        followerId: currentUser._id,
+        followedId: followedUser._id,
+        timestamp: new Date(),
+      });
       return { message: 'Followed successfully' };
     } catch (err) {
       await session.abortTransaction();

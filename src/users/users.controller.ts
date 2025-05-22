@@ -1,16 +1,15 @@
 import {
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Request,
-  UseGuards,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Request,
+    UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auto.guard';
-import { UpdateFollowDto } from './dto/update-follow.dto';
+import { UsersService } from './users.service';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')

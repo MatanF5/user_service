@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
+import { KafkaService } from './kafka/kafka.service';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
@@ -13,8 +15,9 @@ import { UsersModule } from './users/users.module';
     MongooseModule.forRoot(process.env.MONGODB_URI!),
     AuthModule,
     UsersModule,
+    KafkaModule,
   ],
   controllers: [AppController, UsersController],
-  providers: [AppService],
+  providers: [AppService, KafkaService],
 })
 export class AppModule {}
