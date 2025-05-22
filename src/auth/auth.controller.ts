@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Body, Request } from '@nestjs/common';
+import { Controller, Post, UseGuards, Body, Request, UnauthorizedException } from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -18,10 +18,13 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(@Body() dto: LoginDto) {
+    try {
+      return await this.authService.login(dto);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
   }
 
   @Post('me')

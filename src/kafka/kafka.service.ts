@@ -10,7 +10,7 @@ export class KafkaService implements OnModuleInit {
     options: {
       client: {
         clientId: 'post-service',
-        brokers: ['localhost:9092'],
+        brokers: [process.env.KAFKA_BROKERS || 'kafka:29092'],
       },
       producer: {
         allowAutoTopicCreation: true,
@@ -19,7 +19,7 @@ export class KafkaService implements OnModuleInit {
   })
   private client: ClientKafka;
 
-  constructor() {}
+  constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
     await this.client.connect();
